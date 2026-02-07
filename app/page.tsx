@@ -206,7 +206,15 @@ export default function Home() {
             if (checkLine === '{') {
               braceCount--
               if (braceCount === 0) {
-                openBraceIndent = lines[i].match(/^( *)/)?.[1].length || 0
+                // Check if opening brace is on same line as declaration (e.g., "int main() {")
+                const openBraceLine = lines[i]
+                if (openBraceLine.trim() === '{') {
+                  // It's on its own line
+                  openBraceIndent = openBraceLine.match(/^( *)/)?.[1].length || 0
+                } else {
+                  // Brace is on same line as declaration - find the declaration's indent
+                  openBraceIndent = openBraceLine.match(/^( *)/)?.[1].length || 0
+                }
                 break
               }
             }
