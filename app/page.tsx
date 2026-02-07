@@ -262,6 +262,47 @@ export default function Home() {
             })
           }
         }
+        
+        // Check if statement is inside a block but not indented
+        const trimmed = line.trim()
+        const currentIndent = line.match(/^( *)/)?.[1].length || 0
+        
+        // Skip braces and control structures themselves
+        if (trimmed !== '{' && trimmed !== '}' && 
+            !trimmed.startsWith('if') && !trimmed.startsWith('for') && 
+            !trimmed.startsWith('while') && !trimmed.startsWith('else')) {
+          
+          // Look backwards to find if we're inside a block
+          let blockDepth = 0
+          let expectedIndent = -1
+          
+          for (let i = index - 1; i >= 0; i--) {
+            const prevLine = lines[i]
+            const prevTrimmed = prevLine.trim()
+            
+            // Count braces
+            if (prevTrimmed === '}') blockDepth++
+            if (prevTrimmed === '{') {
+              blockDepth--
+              if (blockDepth < 0) {
+                // We found the opening brace of our current block
+                const braceIndent = prevLine.match(/^( *)/)?.[1].length || 0
+                expectedIndent = braceIndent + 2
+                break
+              }
+            }
+          }
+          
+          // If we found we're in a block and indentation is wrong
+          if (expectedIndent !== -1 && currentIndent < expectedIndent) {
+            foundErrors.push({
+              line: lineNum,
+              rule: 'Indentation',
+              message: `Statement inside block should be indented ${expectedIndent} spaces (found ${currentIndent} spaces).`,
+              severity: 'warning'
+            })
+          }
+        }
       }
     })
 
