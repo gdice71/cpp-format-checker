@@ -1,5 +1,6 @@
 'use client'
 
+import { Analytics } from "@vercel/analytics/next"
 import { useState, useRef, useEffect } from 'react'
 
 interface FormatError {
